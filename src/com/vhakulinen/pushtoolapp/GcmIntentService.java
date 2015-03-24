@@ -13,6 +13,7 @@ import javax.net.ssl.HttpsURLConnection;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -133,7 +134,7 @@ public class GcmIntentService extends IntentService {
                     return;
                 }
                 for (String[] d : data) {
-                    sendNotification(d[0], d[1]);
+                    sendNotification(d);
                 }
             } else {
                 Log.i(TAG, "broadcasting");
@@ -146,7 +147,7 @@ public class GcmIntentService extends IntentService {
         }
     }
 
-    private void sendNotification(String title, String body) {
+    private void sendNotification(String[] data) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -155,10 +156,11 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-        .setStyle(new NotificationCompat.BigTextStyle())
         .setSmallIcon(R.drawable.ic_launcher)
-        .setContentTitle(title)
-        .setContentText(body);
+        .setDefaults(Notification.DEFAULT_ALL)
+        .setAutoCancel(true)
+        .setContentTitle(data[0])
+        .setContentText(data[1]);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
