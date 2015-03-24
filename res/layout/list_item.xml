@@ -1,0 +1,39 @@
+<!-- Based on android's developer site tutorial/demo -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:paddingLeft="5dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <!--android:layout_height="?android:listPreferredItemHeightSmall" >-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        android:divider="?android:dividerVertical"
+        android:dividerPadding="8dp"
+        android:gravity="top">
+
+        <TextView android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="#616161"
+            style="?android:textAppearanceSmall" />
+
+        <TextView android:id="@+id/date"
+            android:fontFamily="sans-serif-thin"
+            android:textStyle="italic"
+            android:text="date"
+            android:textSize="10dp"
+            android:layout_width="62dp"
+            android:textColor="#616161"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+    <TextView android:id="@+id/body"
+        android:fontFamily="sans-serif-thin"
+        android:layout_width="wrap_content"
+        android:textColor="#616161"
+        android:layout_height="wrap_content" />
+</LinearLayout>
