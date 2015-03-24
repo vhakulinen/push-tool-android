@@ -49,7 +49,7 @@ public class DataHelper {
                 try {
                     Long timestamp = json.getLong("UnixTimeStamp");
                     if (timestamp != 0) {
-                        time.setTime(timestamp*1000);
+                        time.setTime(timestamp);
                     }
                 } catch (Exception e) {
                 }
@@ -66,11 +66,43 @@ public class DataHelper {
     }
 
     public static void Save(Context context, String data) {
-        Log.i(TAG, "Saving data");
+        // Update the timestamp to current time if it is 0
+        JSONArray jsonData;
+        String newData = "";
+        try {
+            jsonData = fromString(data);
+            for (int i = 0; i < jsonData.length(); i++) {
+                JSONObject json;
+                Date time = new Date();
+
+                try {
+                    json = jsonData.getJSONObject(i);
+                } catch (Exception e) {
+                    Log.d(TAG, e.toString());
+                    continue;
+                }
+
+                try {
+                    Long timestamp = json.getLong("UnixTimeStamp");
+                    if (timestamp == 0) {
+                        json.put("UnixTimeStamp", time.getTime());
+                        jsonData.put(i, json);
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, e.toString());
+                    continue;
+                }
+                newData += json.toString();
+            }
+        } catch (Exception e) {
+            return;
+        }
+
+        Log.d(TAG, "Saving data");
         try {
             FileOutputStream out = context.openFileOutput(STORAGE_FILE_NAME,
                     Context.MODE_APPEND);
-            out.write(data.getBytes());
+            out.write(newData.getBytes());
             out.close();
         } catch (FileNotFoundException e) {
             Log.i(TAG, "FileNotFoundException: " + e.toString());

@@ -447,7 +447,7 @@ public class MainActivity extends Activity {
                     try {
                         Long timestamp = json.getLong("UnixTimeStamp");
                         if (timestamp != 0) {
-                            time.setTime(timestamp*1000);
+                            time.setTime(timestamp);
                         }
                     } catch (Exception e) {
                     }
