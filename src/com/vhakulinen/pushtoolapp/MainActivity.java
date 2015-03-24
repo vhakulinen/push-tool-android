@@ -460,25 +460,6 @@ public class MainActivity extends Activity {
                 String dateString = df.format(time);
 
                 addDataToMainView(title, body, dateString);
-                // ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
-                        // R.layout.list_item, (ViewGroup)mMainView, false);
-                // ((ViewGroup) mMainView).addView(newView, 0);
-
-                // ((TextView) newView.findViewById(R.id.title)).setText(title);
-                // ((TextView) newView.findViewById(R.id.body)).setText(body);
-                // ((TextView) newView.findViewById(R.id.date)).setText(dateString);
-                // if (MainActivity.ON_BACKGROUD) {
-                    // Notification n  = new Notification.Builder(MainActivity.this)
-                            // .setContentTitle(title)
-                            // .setContentText(body)
-                            // .setSmallIcon(R.drawable.ic_launcher)
-                            // .setAutoCancel(true).build();
-
-                    // NotificationManager notificationManager = 
-                      // (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-                    // notificationManager.notify(0, n); 
-                // }
             }
         }
     }
