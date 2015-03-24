@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -122,6 +123,12 @@ public class MainActivity extends Activity {
 
         email = ((TextView) findViewById(R.id.email)).getText().toString();
         password = ((TextView) findViewById(R.id.password)).getText().toString();
+
+        InputMethodManager inputManager = (InputMethodManager)
+                                          getSystemService(Context.INPUT_METHOD_SERVICE); 
+
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                                             InputMethodManager.HIDE_NOT_ALWAYS);
 
         if (!regid.isEmpty()) {
             new RetrieveToken().execute(new String[]{email, password});
