@@ -154,13 +154,21 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), 0);
 
-        NotificationCompat.Builder mBuilder =
+        NotificationCompat.Builder mBuilder;
+
+        mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.ic_launcher)
-        .setDefaults(Notification.DEFAULT_ALL)
+        // .setDefaults(Notification.DEFAULT_ALL)
         .setAutoCancel(true)
         .setContentTitle(data[0])
         .setContentText(data[1]);
+
+        if (Boolean.valueOf(data[3])) {
+            mBuilder.setDefaults(Notification.DEFAULT_ALL);
+        } else {
+            mBuilder.setDefaults(Notification.DEFAULT_LIGHTS);
+        }
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

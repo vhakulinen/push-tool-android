@@ -39,12 +39,14 @@ public class DataHelper {
             JSONObject json;
             String title;
             String body;
+            String sound;
             Date time = new Date();
 
             try {
                 json = jsonArray.getJSONObject(i);
                 title = json.getString("Title");
                 body = json.getString("Body");
+                sound = json.getString("Sound");
 
                 try {
                     Long timestamp = json.getLong("UnixTimeStamp");
@@ -59,7 +61,7 @@ public class DataHelper {
             }
 
             String dateString = dateFormat.format(time);
-            out[i] = new String[]{title, body, dateString};
+            out[i] = new String[]{title, body, dateString, sound};
         }
 
         return out;
