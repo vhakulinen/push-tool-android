@@ -10,6 +10,7 @@ import java.net.URLConnection;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -233,18 +234,15 @@ public class MainActivity extends Activity {
         checkPlayServices();
         MainActivity.ON_BACKGROUD = false;
 
-        String fileContent = DataHelper.ReadAll(context);
-        Log.i(TAG, fileContent);
-        String[][] data;
-        try {
-            data = DataHelper.fromJSONArray(DataHelper.fromString(fileContent));
-        } catch (Exception e) {
-            Log.i(TAG, e.toString());
-            return;
-        }
+        PushDataSource db = new PushDataSource(context);
+        db.open();
+        List<PushData> data = db.getAllData();
+        db.close();
+
         ((LinearLayout)mMainView).removeViews(0, ((LinearLayout)mMainView).getChildCount());
-        for (String[] item : data) {
-            addDataToMainView(item[0], item[1], item[2]);
+
+        for (PushData d : data) {
+            addDataToMainView(d.getTitle(), d.getBody(), d.getTime());
         }
     }
 
@@ -435,31 +433,19 @@ public class MainActivity extends Activity {
  
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject json;
-                String title;
-                String body;
+                PushData p;
                 Date time = new Date();
 
                 try {
                     json = jsonArray.getJSONObject(i);
-                    title = json.getString("Title");
-                    body = json.getString("Body");
-
-                    try {
-                        Long timestamp = json.getLong("UnixTimeStamp");
-                        if (timestamp != 0) {
-                            time.setTime(timestamp);
-                        }
-                    } catch (Exception e) {
-                    }
+                    p = DataHelper.fromJSONObject(json);
                 } catch (Exception e) {
-                    Log.v("JSON", e.toString());
                     continue;
                 }
 
-                Format df = new SimpleDateFormat("MM/dd HH:mm");
-                String dateString = df.format(time);
+                time.setTime(p.getTimestamp());
 
-                addDataToMainView(title, body, dateString);
+                addDataToMainView(p.getTitle(), p.getBody(), p.getTime());
             }
         }
     }

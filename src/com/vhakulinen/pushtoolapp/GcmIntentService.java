@@ -10,6 +10,9 @@ import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.IntentService;
@@ -125,29 +128,45 @@ public class GcmIntentService extends IntentService {
         }
 
         if (!responseMessage.equals("")) {
-            DataHelper.Save(this, responseMessage);
-            if (MainActivity.ON_BACKGROUD) {
-                String[][] data;
+            PushDataSource db = new PushDataSource(getApplicationContext());
+            JSONArray arr;
+            try {
+                arr = DataHelper.fromString(responseMessage);
+            } catch (Exception e) {
+                return;
+            }
+            for ( int i = 0; i < arr.length(); i++) {
+                PushData p;
+                String sound;
+
                 try {
-                    data = DataHelper.fromJSONArray(DataHelper.fromString(responseMessage));
+                    JSONObject json = arr.getJSONObject(i);
+                    p = DataHelper.fromJSONObject(json);
+                    sound = json.getString("Sound");
                 } catch (Exception e) {
-                    return;
+                    Log.v(TAG, "FAIL: " + e.toString());
+                    continue;
                 }
-                for (String[] d : data) {
-                    sendNotification(d);
+
+                if (MainActivity.ON_BACKGROUD) {
+                    sendNotification(p, Boolean.valueOf(sound));
+                } else {
+                    Log.i(TAG, "broadcasting");
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(MainActivity.GcmIntentServiceReceiver.PROCESS_RESPONSE);
+                    broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    broadcastIntent.putExtra(RESPONSE_MESSAGE, responseMessage);
+                    sendBroadcast(broadcastIntent);
                 }
-            } else {
-                Log.i(TAG, "broadcasting");
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(MainActivity.GcmIntentServiceReceiver.PROCESS_RESPONSE);
-                broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                broadcastIntent.putExtra(RESPONSE_MESSAGE, responseMessage);
-                sendBroadcast(broadcastIntent);
+
+                db.open();
+                db.savePushData(p);
+                db.close();
             }
         }
     }
 
-    private void sendNotification(String[] data) {
+    private void sendNotification(PushData data, boolean sound) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -161,10 +180,10 @@ public class GcmIntentService extends IntentService {
         .setSmallIcon(R.drawable.ic_launcher)
         // .setDefaults(Notification.DEFAULT_ALL)
         .setAutoCancel(true)
-        .setContentTitle(data[0])
-        .setContentText(data[1]);
+        .setContentTitle(data.getTitle())
+        .setContentText(data.getBody());
 
-        if (Boolean.valueOf(data[3])) {
+        if (sound) {
             mBuilder.setDefaults(Notification.DEFAULT_ALL);
         } else {
             mBuilder.setDefaults(Notification.DEFAULT_LIGHTS);
