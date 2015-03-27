@@ -1,19 +1,8 @@
 package com.vhakulinen.pushtoolapp;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +22,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,14 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-
-    public static final String DEFAULT_BACKEND_ADDRESS = "https://lotsof.coffee/p/";
-
-    public static final String BACKEND_ADDRESS = DEFAULT_BACKEND_ADDRESS;
-
-    public static final String BACKEND_POOL_ADDRESS = BACKEND_ADDRESS + "pool/";
-    public static final String BACKED_RETRIEVE_ADDRESS = BACKEND_ADDRESS + "retrieve/";
-    public static final String BACKED_GCM_REGISTER = BACKEND_ADDRESS + "gcm/";
 
     public static boolean ON_BACKGROUD = true;
 
@@ -99,6 +81,56 @@ public class MainActivity extends Activity {
         registerReceiver(receiver, filter);
 
         MainActivity.ON_BACKGROUD = false;
+
+        final SwipeRefreshLayout swipe = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                class retrieveData extends AsyncTask<Void, String, String> {
+                    Response response;
+                    protected String doInBackground(Void... params) {
+                        try {
+                            response = BackendHelper.receiveDataFromBackend(
+                                    getApplicationContext());
+                        } catch (Exception e) {
+                            return "";
+                        }
+                        return "";
+                    }
+
+                    protected void onPostExecute(String msg) {
+                        if (!response.getMessage().equals("")) {
+                            PushDataSource db = new PushDataSource(getApplicationContext());
+                            JSONArray arr;
+                            try {
+                                arr = DataHelper.fromString(response.getMessage());
+                            } catch (Exception e) {
+                                return;
+                            }
+                            db.open();
+                            for (int i = 0; i < arr.length(); i++) {
+                                PushData p;
+
+                                try {
+                                    JSONObject json = arr.getJSONObject(i);
+                                    p = DataHelper.fromJSONObject(json);
+                                } catch (Exception e) {
+                                    Log.v(TAG, "FAIL: " + e.toString());
+                                    continue;
+                                }
+
+                                addDataToMainView(p.getTitle(), p.getBody(),
+                                        p.getTime());
+                                db.savePushData(p);
+                            }
+                            db.close();
+                        }
+                        swipe.setRefreshing(false);;
+                    }
+                }
+                new retrieveData().execute(null, null, null);
+            }
+        });
 
         if (checkPlayServices()) {
             // Go on...
@@ -252,7 +284,6 @@ public class MainActivity extends Activity {
         ((ViewGroup) mMainView).addView(newView, 0);
 
         ((TextView) newView.findViewById(R.id.title)).setText(title);
-        // ((TextView) newView.findViewById(R.id.title)).setTextColor(Color.BLACK);
         ((TextView) newView.findViewById(R.id.body)).setText(body);
         ((TextView) newView.findViewById(R.id.date)).setText(date);
     }
@@ -287,8 +318,6 @@ public class MainActivity extends Activity {
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
             addDataToMainView("title","bod","date");
-            // context.sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));
-            // context.sendBroadcast(new Intent("com.google.android.intent.action.MCS_HEARTBEAT"));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -315,71 +344,24 @@ public class MainActivity extends Activity {
         private boolean regTokenOk = false;
 
         private Integer getTokenFromBackend(String email, String password) {
-            String urlParams = String.format("email=%s&password=%s", email, password);
-
+            Response response;
             try {
-                URL url = new URL(MainActivity.BACKED_RETRIEVE_ADDRESS);
-                URLConnection conn = url.openConnection();
-                HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-                httpsConn.setRequestMethod("POST");
-                httpsConn.setDoOutput(true); 
-                httpsConn.setDoInput(true);
-
-                // Send post request
-                httpsConn.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(httpsConn.getOutputStream());
-                wr.writeBytes(urlParams);
-                wr.flush();
-                wr.close();
-         
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(httpsConn.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-         
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-         
-                this.response = response.toString();
-                // return httpsConn.getResponseCode();
-                return httpsConn.getResponseCode();
-            } catch (MalformedURLException e) {
-                Log.v("MalformedURLException", e.toString());
-                return internalError;
-            } catch (IOException e) {
-                Log.v("IOException", e.toString());
+                response = BackendHelper.getTokenFromBackend(email, password);
+            } catch (Exception e) {
                 return internalError;
             }
+            this.response = response.getMessage();
+            return response.getCode();
         }
 
         private Integer registerGCMToBackend(String token) {
-            String urlParams = String.format("gcmid=%s&token=%s", regid, token);
-
+            Response response;
             try {
-                URL url = new URL(MainActivity.BACKED_GCM_REGISTER);
-                URLConnection conn = url.openConnection();
-                HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-                httpsConn.setRequestMethod("POST");
-                httpsConn.setDoOutput(true); 
-                httpsConn.setDoInput(true);
-
-                // Send post request
-                httpsConn.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(httpsConn.getOutputStream());
-                wr.writeBytes(urlParams);
-                wr.flush();
-                wr.close();
-         
-                return httpsConn.getResponseCode();
-            } catch (MalformedURLException e) {
-                Log.v("MalformedURLException", e.toString());
-                return internalError;
-            } catch (IOException e) {
-                Log.v("IOException", e.toString());
+                response = BackendHelper.registerGCMToBackend(token, regid);
+            } catch (Exception e) {
                 return internalError;
             }
+            return response.getCode();
         }
 
         protected Integer doInBackground(String... details) {

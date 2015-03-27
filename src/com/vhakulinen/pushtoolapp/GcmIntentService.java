@@ -1,15 +1,5 @@
 package com.vhakulinen.pushtoolapp;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,7 +11,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -72,58 +61,12 @@ public class GcmIntentService extends IntentService {
     }
 
     private void getDataFromBackend() {
-        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(),
-                Context.MODE_PRIVATE);
-        String token = prefs.getString(MainActivity.PROPERTY_TOKEN_ID, "");
-
-        if (token.isEmpty()) {
-            Log.i(TAG, "Token is empty, wont receive any data");
-        }
-
-        String urlParameters = String.format("token=%s", token);
         String responseMessage;
-
         try {
-            URL url = new URL(MainActivity.BACKEND_POOL_ADDRESS);
-            URLConnection conn = url.openConnection();
-            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-            httpsConn.setRequestMethod("POST");
-            httpsConn.setDoOutput(true); 
-            httpsConn.setDoInput(true);
-     
-            // Send post request
-            httpsConn.setDoOutput(true);
-            DataOutputStream wr = new DataOutputStream(httpsConn.getOutputStream());
-            wr.writeBytes(urlParameters);
-            wr.flush();
-            wr.close();
-     
-            // TODO: If responseCode is not 200, exit the loop and ask
-            // user to re-retrieve the token
-            int responseCode = httpsConn.getResponseCode();
-            Log.v("PUSH","\nSending 'POST' request to URL : " + url);
-            Log.v("PUSH", "Post parameters : " + urlParameters);
-            Log.v("PUSH", "Response Code : " + responseCode);
-     
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(httpsConn.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-     
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-     
-            //print result
-            Log.v("PUSH", response.toString());
-            responseMessage = response.toString();
-
-        } catch (MalformedURLException e) {
-            Log.v("MalformedURLException", e.toString());
-            return;
-        } catch (IOException e) {
-            Log.v("IOException", e.toString());
+            responseMessage = BackendHelper.receiveDataFromBackend(
+                    getApplicationContext()).getMessage();
+        } catch (Exception e) {
+            Log.v(TAG, e.toString());
             return;
         }
 
@@ -135,7 +78,8 @@ public class GcmIntentService extends IntentService {
             } catch (Exception e) {
                 return;
             }
-            for ( int i = 0; i < arr.length(); i++) {
+            db.open();
+            for (int i = 0; i < arr.length(); i++) {
                 PushData p;
                 String sound;
 
@@ -159,10 +103,9 @@ public class GcmIntentService extends IntentService {
                     sendBroadcast(broadcastIntent);
                 }
 
-                db.open();
                 db.savePushData(p);
-                db.close();
             }
+            db.close();
         }
     }
 
@@ -178,7 +121,6 @@ public class GcmIntentService extends IntentService {
         mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.ic_launcher)
-        // .setDefaults(Notification.DEFAULT_ALL)
         .setAutoCancel(true)
         .setContentTitle(data.getTitle())
         .setContentText(data.getBody());
