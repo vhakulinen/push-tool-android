@@ -2,7 +2,6 @@ package com.vhakulinen.pushtoolapp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -75,7 +74,6 @@ public class PushDataSource {
         }
         cursor.close();
 
-        Collections.reverse(data);
         return data;
     }
 
