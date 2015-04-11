@@ -13,11 +13,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
         <LinearLayout
-            android:id="@+id/main_view"
-            android:orientation="vertical"
-            android:animateLayoutChanges="true"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+            <LinearLayout
+                android:id="@+id/main_view"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </LinearLayout>
+            <Button
+                android:text="Load More"
+                android:onClick="loadMore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </Button>
         </LinearLayout>
     </ScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

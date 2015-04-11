@@ -2,6 +2,7 @@ package com.vhakulinen.pushtoolapp;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
@@ -226,6 +227,18 @@ public class MainActivity extends Activity {
         new registerInBg().execute(null, null, null);
     }
 
+    public void loadMore(View v) {
+        PushDataSource db = new PushDataSource(context);
+        db.open();
+        List<PushData> data = db.getNextXFrom(this.displayedDataCount, 10);
+        db.close();
+
+
+        for (PushData d : data) {
+            addDataToEndOfMainView(d.getTitle(), d.getBody(), d.getTime());
+        }
+    }
+
     private void storeRegistrationId(Context context, String regId) {
         final SharedPreferences prefs = getGCMPreferences(context);
         int appVersion = getAppVersion(context);
@@ -275,11 +288,26 @@ public class MainActivity extends Activity {
         List<PushData> data = db.getNextXFrom(this.displayedDataCount, 20);
         db.close();
 
+        Collections.reverse(data);
+
         ((LinearLayout)mMainView).removeViews(0, ((LinearLayout)mMainView).getChildCount());
 
         for (PushData d : data) {
             addDataToMainView(d.getTitle(), d.getBody(), d.getTime());
         }
+    }
+
+    private void addDataToEndOfMainView(String title, String body, String date) {
+        ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
+                R.layout.list_item, (ViewGroup)mMainView, false);
+        ((ViewGroup) mMainView).addView(newView,
+            ((ViewGroup)mMainView).getChildCount());
+
+        ((TextView) newView.findViewById(R.id.title)).setText(title);
+        ((TextView) newView.findViewById(R.id.body)).setText(body);
+        ((TextView) newView.findViewById(R.id.date)).setText(date);
+
+        this.displayedDataCount++;
     }
 
     private void addDataToMainView(String title, String body, String date) {
