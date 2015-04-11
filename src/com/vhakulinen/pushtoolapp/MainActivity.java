@@ -48,6 +48,9 @@ public class MainActivity extends Activity {
 
     private final static String TAG = "PushTool";
 
+    // Int to keep record of how many entries we have on the main view displayed
+    private int displayedDataCount = 0;
+
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     SharedPreferences prefs;
@@ -265,10 +268,11 @@ public class MainActivity extends Activity {
         super.onResume();
         checkPlayServices();
         MainActivity.ON_BACKGROUD = false;
+        this.displayedDataCount = 0;
 
         PushDataSource db = new PushDataSource(context);
         db.open();
-        List<PushData> data = db.getAllData();
+        List<PushData> data = db.getNextXFrom(this.displayedDataCount, 20);
         db.close();
 
         ((LinearLayout)mMainView).removeViews(0, ((LinearLayout)mMainView).getChildCount());
@@ -286,6 +290,8 @@ public class MainActivity extends Activity {
         ((TextView) newView.findViewById(R.id.title)).setText(title);
         ((TextView) newView.findViewById(R.id.body)).setText(body);
         ((TextView) newView.findViewById(R.id.date)).setText(date);
+
+        this.displayedDataCount++;
     }
 
     private boolean checkPlayServices() {

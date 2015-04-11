@@ -2,6 +2,7 @@ package com.vhakulinen.pushtoolapp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -51,6 +52,30 @@ public class PushDataSource {
         }
         cursor.close();
 
+        return data;
+    }
+
+    public List<PushData> getNextXFrom(int startIndex, int count) {
+        // Inverst everything so that gets the newest
+        List<PushData> data = new ArrayList<PushData>();
+
+        Cursor cursor = database.query(PushDatabaseHelper.TABLE_DATA,
+                allColumns, null, null, null, null, null);
+
+        cursor.moveToLast();
+        // +1 because cursor.getPosition is zero based
+        int invertedIndex = cursor.getPosition() - startIndex + 1;
+
+        while (!cursor.isBeforeFirst() && count > 0) {
+            if (cursor.getPosition() < invertedIndex) {
+                data.add(cursorToPushData(cursor));
+                count--;
+            }
+            cursor.moveToPrevious();
+        }
+        cursor.close();
+
+        Collections.reverse(data);
         return data;
     }
 
