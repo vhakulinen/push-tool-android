@@ -123,8 +123,7 @@ public class MainActivity extends Activity {
                                     continue;
                                 }
 
-                                addDataToMainView(p.getTitle(), p.getBody(),
-                                        p.getTime());
+                                addDataToMainView(p);
                                 db.savePushData(p);
                             }
                             db.close();
@@ -235,7 +234,7 @@ public class MainActivity extends Activity {
 
 
         for (PushData d : data) {
-            addDataToEndOfMainView(d.getTitle(), d.getBody(), d.getTime());
+            addDataToEndOfMainView(d);
         }
     }
 
@@ -293,31 +292,27 @@ public class MainActivity extends Activity {
         ((LinearLayout)mMainView).removeViews(0, ((LinearLayout)mMainView).getChildCount());
 
         for (PushData d : data) {
-            addDataToMainView(d.getTitle(), d.getBody(), d.getTime());
+            addDataToMainView(d);
         }
     }
 
-    private void addDataToEndOfMainView(String title, String body, String date) {
+    private void addDataToEndOfMainView(PushData data) {
         ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
                 R.layout.list_item, (ViewGroup)mMainView, false);
         ((ViewGroup) mMainView).addView(newView,
             ((ViewGroup)mMainView).getChildCount());
 
-        ((TextView) newView.findViewById(R.id.title)).setText(title);
-        ((TextView) newView.findViewById(R.id.body)).setText(body);
-        ((TextView) newView.findViewById(R.id.date)).setText(date);
+        ((ListItem) newView).init(this, data);
 
         this.displayedDataCount++;
     }
 
-    private void addDataToMainView(String title, String body, String date) {
+    private void addDataToMainView(PushData data) {
         ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
                 R.layout.list_item, (ViewGroup)mMainView, false);
         ((ViewGroup) mMainView).addView(newView, 0);
 
-        ((TextView) newView.findViewById(R.id.title)).setText(title);
-        ((TextView) newView.findViewById(R.id.body)).setText(body);
-        ((TextView) newView.findViewById(R.id.date)).setText(date);
+        ((ListItem) newView).init(this, data);
 
         this.displayedDataCount++;
     }
@@ -351,7 +346,6 @@ public class MainActivity extends Activity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-            addDataToMainView("title","bod","date");
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -461,7 +455,7 @@ public class MainActivity extends Activity {
 
                 time.setTime(p.getTimestamp());
 
-                addDataToMainView(p.getTitle(), p.getBody(), p.getTime());
+                addDataToMainView(p);
             }
         }
     }
