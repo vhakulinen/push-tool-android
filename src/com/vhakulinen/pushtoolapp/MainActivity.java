@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     private final static String TAG = "PushTool";
 
     // Keep track if displayed data
-    private List<ListItem> listItems = new ArrayList<ListItem>();
+    public List<ListItem> listItems = new ArrayList<ListItem>();
 
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();

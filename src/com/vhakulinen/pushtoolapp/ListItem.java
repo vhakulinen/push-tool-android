@@ -28,24 +28,31 @@ class ListItem extends LinearLayout {
             AlertDialog.Builder builder = new AlertDialog.Builder(dialogActivity);
             builder.setTitle("What to do?");
             builder.setPositiveButton("Open Url", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface arg0, int arg1) {
-                String url = data.getUrl();
-                if (!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                dialogActivity.startActivity(browserIntent);
-              }
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                    String url = data.getUrl();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    dialogActivity.startActivity(browserIntent);
+                }
             });
             builder.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface arg0, int arg1) {
-              }
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                    ((MainActivity) dialogActivity).listItems.remove(ListItem.this);
+                    setVisibility(LinearLayout.GONE);
+
+                    PushDataSource db = new PushDataSource(dialogActivity);
+                    db.open();
+                    db.deletePushData(data);
+                    db.close();
+                }
             });
             builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface arg0, int arg1) {
-              }
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                }
             });
             builder.show();
         }   

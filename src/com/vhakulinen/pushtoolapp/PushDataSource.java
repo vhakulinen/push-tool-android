@@ -38,6 +38,13 @@ public class PushDataSource {
         database.insert(PushDatabaseHelper.TABLE_DATA, null, values);
     }
 
+    public void deletePushData(PushData d) {
+        int id = d.getId();
+        if (id == -1) return;
+        database.delete(PushDatabaseHelper.TABLE_DATA,
+                PushDatabaseHelper.COLUMN_ID + "=" + id, null);
+    }
+
     public List<PushData> getAllNewFrom(PushData fromPushData) {
         List<PushData> data = new ArrayList<PushData>();
         int fromId = fromPushData.getId();
