@@ -43,8 +43,6 @@ public class BackendHelper {
         wr.flush();
         wr.close();
  
-        // TODO: If responseCode is not 200, exit the loop and ask
-        // user to re-retrieve the token
         responseCode = httpsConn.getResponseCode();
         Log.v("PUSH","\nSending 'POST' request to URL : " + url);
         Log.v("PUSH", "Post parameters : " + params);
