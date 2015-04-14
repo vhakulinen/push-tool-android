@@ -432,9 +432,14 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
 
             PushDataSource db = new PushDataSource(context);
+            List<PushData> data;
             db.open();
-            List<PushData> data = db.getAllNewFrom(
-                    listItems.get(listItems.size() - 1).getPushData());
+            if (listItems.size() == 0) {
+                data = db.getAllData();
+            } else {
+                data = db.getAllNewFrom(
+                        listItems.get(listItems.size() - 1).getPushData());
+            }
             db.close();
 
             for (PushData d : data) { addDataToMainView(d); }
