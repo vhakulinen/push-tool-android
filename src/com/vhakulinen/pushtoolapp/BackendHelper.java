@@ -44,9 +44,6 @@ public class BackendHelper {
         wr.close();
  
         responseCode = httpsConn.getResponseCode();
-        Log.v("PUSH","\nSending 'POST' request to URL : " + url);
-        Log.v("PUSH", "Post parameters : " + params);
-        Log.v("PUSH", "Response Code : " + responseCode);
  
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(httpsConn.getInputStream()));
@@ -58,8 +55,6 @@ public class BackendHelper {
         }
         in.close();
  
-        //print result
-        Log.v("PUSH", response.toString());
         responseMessage = response.toString();
 
         return new Response(responseCode, responseMessage);
