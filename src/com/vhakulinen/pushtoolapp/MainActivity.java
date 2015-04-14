@@ -1,6 +1,6 @@
 package com.vhakulinen.pushtoolapp;
 import java.io.IOException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,8 +49,8 @@ public class MainActivity extends Activity {
 
     private final static String TAG = "PushTool";
 
-    // Int to keep record of how many entries we have on the main view displayed
-    private int displayedDataCount = 0;
+    // Keep track if displayed data
+    private List<ListItem> listItems = new ArrayList<ListItem>();
 
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
@@ -229,7 +229,7 @@ public class MainActivity extends Activity {
     public void loadMore(View v) {
         PushDataSource db = new PushDataSource(context);
         db.open();
-        List<PushData> data = db.getNextXFrom(this.displayedDataCount, 10);
+        List<PushData> data = db.getNextXFrom(this.listItems.size(), 10);
         db.close();
 
 
@@ -280,11 +280,11 @@ public class MainActivity extends Activity {
         super.onResume();
         checkPlayServices();
         MainActivity.ON_BACKGROUD = false;
-        this.displayedDataCount = 0;
+        this.listItems = new ArrayList<ListItem>();
 
         PushDataSource db = new PushDataSource(context);
         db.open();
-        List<PushData> data = db.getNextXFrom(this.displayedDataCount, 20);
+        List<PushData> data = db.getNextXFrom(this.listItems.size(), 20);
         db.close();
 
         Collections.reverse(data);
@@ -304,7 +304,7 @@ public class MainActivity extends Activity {
 
         ((ListItem) newView).init(this, data);
 
-        this.displayedDataCount++;
+        this.listItems.add((ListItem) newView);
     }
 
     private void addDataToMainView(PushData data) {
@@ -314,7 +314,7 @@ public class MainActivity extends Activity {
 
         ((ListItem) newView).init(this, data);
 
-        this.displayedDataCount++;
+        this.listItems.add((ListItem) newView);
     }
 
     private boolean checkPlayServices() {
@@ -430,33 +430,14 @@ public class MainActivity extends Activity {
  
         @Override
         public void onReceive(Context context, Intent intent) {
-            String responseMessage = intent.getStringExtra(GcmIntentService.RESPONSE_MESSAGE);
-            JSONArray jsonArray;
 
-            try {
-                responseMessage = responseMessage.replace("}{", "},{");
-                jsonArray = new JSONArray("[ " + responseMessage + " ]");
-            } catch (Exception e) {
-                Log.v("JSON", e.toString());
-                return;
-            }
- 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject json;
-                PushData p;
-                Date time = new Date();
+            PushDataSource db = new PushDataSource(context);
+            db.open();
+            List<PushData> data = db.getAllNewFrom(
+                    listItems.get(listItems.size() - 1).getPushData());
+            db.close();
 
-                try {
-                    json = jsonArray.getJSONObject(i);
-                    p = DataHelper.fromJSONObject(json);
-                } catch (Exception e) {
-                    continue;
-                }
-
-                time.setTime(p.getTimestamp());
-
-                addDataToMainView(p);
-            }
+            for (PushData d : data) { addDataToMainView(d); }
         }
     }
 }

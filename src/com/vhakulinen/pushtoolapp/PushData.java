@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class PushData {
 
+    private int id;
     private String title;
     private String body;
     private String url;
@@ -13,7 +14,7 @@ public class PushData {
 
     private Format df = new SimpleDateFormat("MM/dd HH:mm");
 
-    public PushData(String title, String body, String url, long timestamp) {
+    public void constructor(String title, String body, String url, long timestamp, int id) {
         this.title = title;
         this.body = body;
         this.url = url;
@@ -23,6 +24,15 @@ public class PushData {
             time.setTime(timestamp);
         }
         this.timestamp = time.getTime();
+        this.id = id;
+    }
+
+    public PushData(String title, String body, String url, long timestamp) {
+        this.constructor(title, body, url, timestamp, -1);
+    }
+
+    public PushData(String title, String body, String url, long timestamp, int id) {
+        this.constructor(title, body, url, timestamp, id);
     }
 
     public String getTitle() { return this.title; }
@@ -33,5 +43,9 @@ public class PushData {
     public String getTime() {
         String dateString = df.format(this.timestamp);
         return dateString;
+    }
+
+    public int getId() {
+        return this.id;
     }
 }

@@ -92,4 +92,6 @@ class ListItem extends LinearLayout {
         }
         return true;
     }
+
+    public PushData getPushData() { return this.data; }
 }

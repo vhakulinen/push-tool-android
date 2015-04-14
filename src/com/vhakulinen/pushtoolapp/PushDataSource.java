@@ -38,6 +38,25 @@ public class PushDataSource {
         database.insert(PushDatabaseHelper.TABLE_DATA, null, values);
     }
 
+    public List<PushData> getAllNewFrom(PushData fromPushData) {
+        List<PushData> data = new ArrayList<PushData>();
+        int fromId = fromPushData.getId();
+
+        if (fromId == -1) { return data; }
+
+        Cursor cursor = database.query(PushDatabaseHelper.TABLE_DATA,
+                allColumns, null, null, null, null, null);
+
+        cursor.move(fromId + 1);
+        while (!cursor.isAfterLast()) {
+            data.add(cursorToPushData(cursor));
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return data;
+    }
+
     public List<PushData> getAllData() {
         List<PushData> data = new ArrayList<PushData>();
 
@@ -82,7 +101,8 @@ public class PushDataSource {
                 c.getString(c.getColumnIndex(PushDatabaseHelper.COLUMN_TITLE)),
                 c.getString(c.getColumnIndex(PushDatabaseHelper.COLUMN_BODY)),
                 c.getString(c.getColumnIndex(PushDatabaseHelper.COLUMN_URL)),
-                c.getLong(c.getColumnIndex(PushDatabaseHelper.COLUMN_TIMESTAMP)));
+                c.getLong(c.getColumnIndex(PushDatabaseHelper.COLUMN_TIMESTAMP)),
+                c.getInt(c.getColumnIndex(PushDatabaseHelper.COLUMN_ID)));
         return d;
     }
 }
