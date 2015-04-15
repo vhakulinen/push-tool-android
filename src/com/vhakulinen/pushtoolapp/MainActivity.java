@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
     private View mRetrieveView;
     private View mMainView;
     private View mMainContainer;
+    private View mCurrentView;
 
 
 	@Override
@@ -78,6 +79,7 @@ public class MainActivity extends Activity {
         mMainView = findViewById(R.id.main_view);
         mMainContainer = findViewById(R.id.main_container);
         mRetrieveView = findViewById(R.id.retrieve_view);
+        mCurrentView = mMainView;
 
         IntentFilter filter = new IntentFilter(GcmIntentServiceReceiver.PROCESS_RESPONSE);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -86,7 +88,7 @@ public class MainActivity extends Activity {
 
         MainActivity.ON_BACKGROUD = false;
 
-        final SwipeRefreshLayout swipe = (SwipeRefreshLayout) findViewById(R.id.swipe);
+        final SwipeRefreshLayout swipe = (SwipeRefreshLayout) mMainView;
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -145,8 +147,7 @@ public class MainActivity extends Activity {
                 registerInBackground();
             }
             if (token.isEmpty()) {
-                mMainContainer.setVisibility(View.GONE);
-                mRetrieveView.setVisibility(View.VISIBLE);
+                changeView(mRetrieveView);
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
@@ -289,7 +290,7 @@ public class MainActivity extends Activity {
 
         Collections.reverse(data);
 
-        ((LinearLayout)mMainView).removeViews(0, ((LinearLayout)mMainView).getChildCount());
+        ((LinearLayout)mMainContainer).removeViews(0, ((LinearLayout)mMainContainer).getChildCount());
 
         for (PushData d : data) {
             addDataToMainView(d);
@@ -298,9 +299,9 @@ public class MainActivity extends Activity {
 
     private void addDataToEndOfMainView(PushData data) {
         ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.list_item, (ViewGroup)mMainView, false);
-        ((ViewGroup) mMainView).addView(newView,
-            ((ViewGroup)mMainView).getChildCount());
+                R.layout.list_item, (ViewGroup)mMainContainer, false);
+        ((ViewGroup) mMainContainer).addView(newView,
+            ((ViewGroup)mMainContainer).getChildCount());
 
         ((ListItem) newView).init(this, data);
 
@@ -309,8 +310,8 @@ public class MainActivity extends Activity {
 
     private void addDataToMainView(PushData data) {
         ViewGroup newView = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.list_item, (ViewGroup)mMainView, false);
-        ((ViewGroup) mMainView).addView(newView, 0);
+                R.layout.list_item, (ViewGroup)mMainContainer, false);
+        ((ViewGroup) mMainContainer).addView(newView, 0);
 
         ((ListItem) newView).init(this, data);
 
@@ -361,6 +362,12 @@ public class MainActivity extends Activity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_TOKEN_ID, token);
         editor.commit();
+    }
+
+    private void changeView(View to) {
+        mCurrentView.setVisibility(View.GONE);
+        to.setVisibility(View.VISIBLE);
+        mCurrentView = to;
     }
 
     private class RetrieveToken extends AsyncTask<String, Void, Integer> {
@@ -415,8 +422,7 @@ public class MainActivity extends Activity {
             if (tokenOk && regTokenOk) {
                 // Ok
                 saveToken(this.response);
-                mRetrieveView.setVisibility(View.GONE);
-                mMainContainer.setVisibility(View.VISIBLE);
+                changeView(mMainView);
             } else {
                 // Error
                 makeToast("Failed to retreive the token");
