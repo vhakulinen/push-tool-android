@@ -8,5 +8,6 @@
     <string name="login_password">Password</string>
     <string name="receive_token_title">Receive token</string>
     <string name="receive_btn">Receive token</string>
+    <string name="load_more_btn">Load More</string>
 
 </resources>

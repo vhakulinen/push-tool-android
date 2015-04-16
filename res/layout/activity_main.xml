@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content" >
             </LinearLayout>
             <Button
-                android:text="Load More"
+                android:text="@string/load_more_btn"
                 android:onClick="loadMore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
