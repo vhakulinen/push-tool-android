@@ -13,6 +13,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -295,6 +296,10 @@ public class MainActivity extends Activity {
         for (PushData d : data) {
             addDataToMainView(d);
         }
+
+        NotificationManager nm = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancelAll();
     }
 
     private void addDataToEndOfMainView(PushData data) {
