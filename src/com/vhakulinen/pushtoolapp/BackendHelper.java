@@ -10,7 +10,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 public class BackendHelper {
 
@@ -70,7 +69,6 @@ public class BackendHelper {
         String token = prefs.getString(MainActivity.PROPERTY_TOKEN_ID, "");
 
         if (token.isEmpty()) {
-            Log.i(TAG, "Token is empty, wont receive any data");
             throw new Exception("Token is empty!");
         }
 

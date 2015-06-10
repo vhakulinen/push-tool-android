@@ -27,7 +27,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -124,7 +123,6 @@ public class MainActivity extends Activity {
                                     JSONObject json = arr.getJSONObject(i);
                                     p = DataHelper.fromJSONObject(json);
                                 } catch (Exception e) {
-                                    Log.v(TAG, "FAIL: " + e.toString());
                                     continue;
                                 }
 
@@ -153,7 +151,6 @@ public class MainActivity extends Activity {
                 changeView(mRetrieveView);
             }
         } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
         }
 
         AdView adView = (AdView) findViewById(R.id.adViewMain);
@@ -188,7 +185,6 @@ public class MainActivity extends Activity {
         final SharedPreferences prefs = getGCMPreferences(context);
         String token = prefs.getString(PROPERTY_TOKEN_ID, "");
         if (token.isEmpty()) {
-            Log.i(TAG, "Registration not found.");
             return "";
         }
         return token;
@@ -198,14 +194,12 @@ public class MainActivity extends Activity {
         final SharedPreferences prefs = getGCMPreferences(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
-            Log.i(TAG, "Registration not found.");
             return "";
         }
 
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
-            Log.i(TAG, "App version changed.");
             return "";
         }
         return registrationId;
@@ -221,7 +215,6 @@ public class MainActivity extends Activity {
                     }
                     regid = gcm.register(SENDER_ID);
                     msg = "Device registered, registratio ID=" + regid;
-                    Log.i(TAG, msg);
 
                     storeRegistrationId(context, regid);
                 } catch (IOException e) {
@@ -252,7 +245,6 @@ public class MainActivity extends Activity {
     private void storeRegistrationId(Context context, String regId) {
         final SharedPreferences prefs = getGCMPreferences(context);
         int appVersion = getAppVersion(context);
-        Log.i(TAG, "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_REG_ID, regId);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
@@ -339,7 +331,6 @@ public class MainActivity extends Activity {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-                Log.i(TAG, "This device is not supported.");
                 finish();
             }
             return false;
@@ -407,7 +398,6 @@ public class MainActivity extends Activity {
 
     private void saveToken(String token) {
         final SharedPreferences prefs = getGCMPreferences(context);
-        Log.i(TAG, "Saveing token");
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_TOKEN_ID, token);
         editor.commit();

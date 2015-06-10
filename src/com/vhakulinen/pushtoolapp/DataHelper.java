@@ -3,7 +3,6 @@ package com.vhakulinen.pushtoolapp;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
 
 public class DataHelper {
     public final static String TAG = "DataHelper";
@@ -15,7 +14,6 @@ public class DataHelper {
             data = data.replace("}{", "},{");
             jsonArray = new JSONArray("[ " + data + " ]");
         } catch (Exception e) {
-            Log.v(TAG, e.toString());
             throw new Exception("Failed to parse data to json");
         }
         return jsonArray;

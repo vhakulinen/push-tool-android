@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 public class GcmIntentService extends IntentService {
     public static final String RESPONSE_MESSAGE = "PingGcmInsetServiceMessage";
@@ -27,7 +26,6 @@ public class GcmIntentService extends IntentService {
 
     public GcmIntentService() {
         super("GcmIntentService");
-        Log.i(TAG, "Started");
     }
 
     @Override
@@ -40,17 +38,12 @@ public class GcmIntentService extends IntentService {
         if (!extras.isEmpty()) {
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                Log.i(TAG, "Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_DELETED.equals(messageType)) {
-                Log.i(TAG, "Deleted messages on server: " + extras.toString());
 
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-
-                Log.i(TAG, "Received: " + extras.toString());
-                Log.i(TAG, "Message: " + extras.getString("message"));
 
                 if (extras.getString("message").equals("ping")) {
                     getDataFromBackend();
@@ -67,7 +60,6 @@ public class GcmIntentService extends IntentService {
             responseMessage = BackendHelper.receiveDataFromBackend(
                     getApplicationContext()).getMessage();
         } catch (Exception e) {
-            Log.v(TAG, e.toString());
             return;
         }
 
@@ -89,14 +81,12 @@ public class GcmIntentService extends IntentService {
                     p = DataHelper.fromJSONObject(json);
                     sound = json.getString("Sound");
                 } catch (Exception e) {
-                    Log.v(TAG, "FAIL: " + e.toString());
                     continue;
                 }
 
                 if (MainActivity.ON_BACKGROUD) {
                     sendNotification(p, Boolean.valueOf(sound));
                 } else {
-                    Log.i(TAG, "broadcasting");
                     Intent broadcastIntent = new Intent();
                     broadcastIntent.setAction(MainActivity.GcmIntentServiceReceiver.PROCESS_RESPONSE);
                     broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
