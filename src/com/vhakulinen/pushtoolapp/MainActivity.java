@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -153,6 +155,12 @@ public class MainActivity extends Activity {
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
+
+        AdView adView = (AdView) findViewById(R.id.adViewMain);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                    .build();
+        adView.loadAd(adRequest);
 	}
 
     public void onRetrieve(View v) {
