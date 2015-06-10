@@ -169,6 +169,7 @@ public class MainActivity extends Activity {
 
         email = ((TextView) findViewById(R.id.email)).getText().toString();
         password = ((TextView) findViewById(R.id.password)).getText().toString();
+        ((TextView) findViewById(R.id.password)).setText("");
 
         InputMethodManager inputManager = (InputMethodManager)
                                           getSystemService(Context.INPUT_METHOD_SERVICE); 
@@ -359,7 +360,42 @@ public class MainActivity extends Activity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_logout) {
+            final SharedPreferences prefs = getGCMPreferences(context);
+            Log.i(TAG, "Deleting");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(PROPERTY_TOKEN_ID, "");
+            editor.putString(PROPERTY_REG_ID, regid);
+            editor.commit();
+
+            //class unregisterInBg extends AsyncTask<Void, Void, boolean> {
+            class unregisterInBg extends AsyncTask<Void, Void, Boolean> {
+                ProgressDialog dialog;
+
+                protected Boolean doInBackground(Void... params) {
+                    try {
+                        // Unregister from backend doesnt return anything so
+                        // no need to check any return values
+                        BackendHelper.unregisterGCMFromBackend(regid);
+                    } catch (Exception e) {
+                    }
+                    return false;
+                }
+
+                protected void onPreExecute() {
+                    dialog = new ProgressDialog(MainActivity.this);
+                    dialog.setCancelable(false);
+                    dialog.setMessage("Logging out...");
+                    dialog.show();
+                }
+
+                protected void onPostExecute(Boolean error) {
+                    dialog.dismiss();
+                }
+            }
+            new unregisterInBg().execute(null, null, null);
+
+            changeView(mRetrieveView);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -427,6 +463,7 @@ public class MainActivity extends Activity {
         protected void onPreExecute() {
             dialog = new ProgressDialog(MainActivity.this);
             dialog.setMessage("Retrieving token...");
+            dialog.setCancelable(false);
             dialog.show();
         }
 

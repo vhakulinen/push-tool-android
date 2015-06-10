@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Push Tool App</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
 
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>

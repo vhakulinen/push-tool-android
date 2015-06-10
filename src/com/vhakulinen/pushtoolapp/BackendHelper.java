@@ -21,6 +21,7 @@ public class BackendHelper {
     public static final String BACKEND_POOL_ADDRESS = BACKEND_ADDRESS + "pool/";
     public static final String BACKED_RETRIEVE_ADDRESS = BACKEND_ADDRESS + "retrieve/";
     public static final String BACKED_GCM_REGISTER = BACKEND_ADDRESS + "gcm/";
+    public static final String BACKED_GCM_UNREGISTER = BACKEND_ADDRESS + "ungcm/";
     public static String TAG = "BackendHelper";
 
     private static Response doPostRequest(String uri, String params) throws Exception {
@@ -56,6 +57,11 @@ public class BackendHelper {
         responseMessage = response.toString();
 
         return new Response(responseCode, responseMessage);
+    }
+
+    public static Response unregisterGCMFromBackend(String gcmId) throws Exception {
+        String urlParameters = String.format("gcmid=%s", gcmId);
+        return doPostRequest(BACKED_GCM_UNREGISTER, urlParameters);
     }
 
     public static Response receiveDataFromBackend(Context context) throws Exception {
