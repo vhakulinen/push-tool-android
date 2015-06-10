@@ -18,7 +18,7 @@ import android.util.Log;
 public class GcmIntentService extends IntentService {
     public static final String RESPONSE_MESSAGE = "PingGcmInsetServiceMessage";
     public static final String RESPONSE_PING = "PingGcm";
-;
+
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
