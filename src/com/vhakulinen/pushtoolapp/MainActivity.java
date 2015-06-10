@@ -353,7 +353,6 @@ public class MainActivity extends Activity {
 		int id = item.getItemId();
 		if (id == R.id.action_logout) {
             final SharedPreferences prefs = getGCMPreferences(context);
-            Log.i(TAG, "Deleting");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PROPERTY_TOKEN_ID, "");
             editor.putString(PROPERTY_REG_ID, regid);
